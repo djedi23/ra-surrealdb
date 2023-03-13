@@ -1,0 +1,65 @@
+{
+  "name": "ra-surrealdb",
+  "version": "0.0.1",
+  "type": "module",
+  "homepage": "https://github.com/djedi23/ra-surrealdb",
+  "repository": "https://github.com/djedi23/ra-surrealdb.git",
+  "author": "Mose Valvassori <moise.valvassori@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "prettier": "prettier --write .",
+    "postinstall": "husky install",
+    "prepack": "vite build"
+  },
+  "peerDependencies": {
+    "react-admin": "^4.8.2"
+  },
+  "dependencies": {
+    "jwt-decode": "^3.1.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "surrealdb.js": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@vitejs/plugin-react": "^3.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.2",
+    "prettier": "^2.8.4",
+    "react-admin": "^4.8.2",
+    "typescript": "^4.9.3",
+    "vite": "^4.1.0",
+    "vite-plugin-dts": "^2.1.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "yarn prettier",
+      "yarn lint --fix"
+    ],
+    "*.json": [
+      "yarn prettierjson"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "yarn test"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/ra_surrealdb.umd.js",
+  "module": "./dist/ra_surrealdb.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/ra_surrealdb.es.js",
+      "require": "./dist/ra_surrealdb.umd.js"
+    }
+  }
+}

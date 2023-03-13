@@ -1,0 +1,7 @@
+version: '3.1'
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    ports:
+      - 8000:8000
+    command: start  --log debug --user root --pass root memory
