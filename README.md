@@ -44,6 +44,7 @@ The hook `useRaSurrealDb` creates the connexion to SurrealDB. It takes these par
 
 - the `url` of the database;
 - `signinOptions` is the `Auth` object used by SurrealDB to connect.
+- `localStorage`, if set to a string then the library stores the auth informations (jwt token) in local storage. If not set the auth informations are stored in memory and are reseted on page reload. The string represents the key used in the local storage.
 
 The result of the hook is passed to the provider function `surrealDbDataProvider`.
 
