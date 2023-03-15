@@ -29,6 +29,7 @@ function App() {
       DB: 'test',
       SC: 'account_scope',
     },
+    localStorage: 'ra_auth',
   });
 
   const dataProvider = surrealDbDataProvider(surreal);

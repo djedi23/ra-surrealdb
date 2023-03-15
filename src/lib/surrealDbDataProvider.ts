@@ -22,12 +22,12 @@ import {
   UpdateResult,
 } from 'react-admin';
 import Surreal, { Auth, DatabaseAuth, Result } from 'surrealdb.js';
-import { RaSurrealDb } from '.';
+import { RaSurrealDb, RaSurrealDbAuth } from '.';
 
 export const surrealDbDataProvider = <ResourceType extends string = string>(
   options: RaSurrealDb
 ): DataProvider<ResourceType> => {
-  const { surrealdb_js, signinOptions } = options;
+  const { surrealdb_js, signinOptions, localStorage: localStorageKey } = options;
 
   const ensureConnexion = async (): Promise<Surreal> => {
     if (options.auth === undefined && signinOptions.user) {
@@ -38,6 +38,16 @@ export const surrealDbDataProvider = <ResourceType extends string = string>(
         id: jwt_decoded.ID,
         exp: jwt_decoded.exp * 1000,
       };
+
+      await surrealdb_js.use(
+        (signinOptions as DatabaseAuth).NS || 'test',
+        (signinOptions as DatabaseAuth).DB || 'test'
+      );
+    } else if (localStorageKey && options.auth?.jwt === undefined) {
+      const auth_string = localStorage.getItem(localStorageKey);
+      const auth: RaSurrealDbAuth | undefined = auth_string && JSON.parse(auth_string);
+      auth?.jwt && (await surrealdb_js.authenticate(auth.jwt));
+      options.auth = auth;
 
       await surrealdb_js.use(
         (signinOptions as DatabaseAuth).NS || 'test',
