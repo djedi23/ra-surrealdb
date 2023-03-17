@@ -117,7 +117,6 @@ export const surrealDbDataProvider = <ResourceType extends string = string>(
         (page - 1) * perPage
       };
 SELECT count(${target}) FROM ${id} ${filters} GROUP BY ALL; `;
-      console.log('query: ', query);
       const [data, count]: [Result<RecordType[]>, Result<{ count: number }[]>] = await db.query(
         query,
         { resource }
