@@ -21,7 +21,7 @@ import {
 } from 'react-admin';
 import { surrealDbAuthProvider, surrealDbDataProvider, useRaSurrealDb } from './lib';
 
-function App() {
+const App = (): JSX.Element => {
   const surreal = useRaSurrealDb({
     url: 'http://127.0.0.1:8000/rpc',
     signinOptions: {
@@ -53,13 +53,13 @@ function App() {
       />
     </Admin>
   );
-}
+};
 
 export default App;
 
-const articleFilters = [<TextInput label="Title" source="title" />];
+const articleFilters = [<TextInput key="title_filter" label="Title" source="title" />];
 
-const ArticleList = () => (
+const ArticleList = (): JSX.Element => (
   <List filters={articleFilters}>
     <Datagrid rowClick="edit">
       <TextField source="id" />
@@ -70,7 +70,7 @@ const ArticleList = () => (
   </List>
 );
 
-const ArticleCreate = () => (
+const ArticleCreate = (): JSX.Element => (
   <Create>
     <SimpleForm>
       <TextInput source="id" />
@@ -82,7 +82,7 @@ const ArticleCreate = () => (
   </Create>
 );
 
-const ArticleShow = () => (
+const ArticleShow = (): JSX.Element => (
   <Show>
     <SimpleShowLayout>
       <TextField source="id" />
@@ -99,7 +99,7 @@ const ArticleShow = () => (
   </Show>
 );
 
-const ArticleEdit = () => (
+const ArticleEdit = (): JSX.Element => (
   <Edit>
     <SimpleForm>
       <TextInput source="id" />

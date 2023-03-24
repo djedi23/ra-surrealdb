@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import Surreal, { Auth } from 'surrealdb.js';
+import Surreal, { type Auth } from 'surrealdb.js';
 
 export { surrealDbDataProvider } from './surrealDbDataProvider';
 export { surrealDbAuthProvider } from './surrealDbAuthProvider';
 
 export interface RaSurrealDb {
-  surrealdb_js: Surreal;
+  surrealdb: Surreal;
   signinOptions: Partial<Auth>;
   auth?: RaSurrealDbAuth;
   localStorage?: string;
@@ -23,6 +23,11 @@ interface RaSurrealDbOption {
   localStorage?: string;
 }
 
+export interface JWTInterface {
+  ID: string;
+  exp: number;
+}
+
 export const useRaSurrealDb = ({
   url,
   signinOptions,
@@ -30,7 +35,7 @@ export const useRaSurrealDb = ({
 }: RaSurrealDbOption): RaSurrealDb =>
   useMemo(
     () => ({
-      surrealdb_js: new Surreal(url),
+      surrealdb: new Surreal(url),
       signinOptions,
       localStorage,
     }),

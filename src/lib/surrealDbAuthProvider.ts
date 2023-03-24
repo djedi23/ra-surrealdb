@@ -1,6 +1,6 @@
 import jwt_decode from 'jwt-decode';
-import { AuthProvider, UserIdentity } from 'react-admin';
-import { RaSurrealDb, RaSurrealDbAuth } from '.';
+import { type AuthProvider, type UserIdentity } from 'react-admin';
+import { type JWTInterface, type RaSurrealDb, type RaSurrealDbAuth } from '.';
 
 interface LoginPayload {
   username: string;
@@ -8,58 +8,62 @@ interface LoginPayload {
 }
 
 export const surrealDbAuthProvider = (rasurreal: RaSurrealDb): AuthProvider => {
-  const { surrealdb_js, signinOptions, localStorage: localStorageKey } = rasurreal;
+  const { surrealdb, signinOptions, localStorage: localStorageKey } = rasurreal;
 
   return {
     login: async ({ username, password }: LoginPayload) => {
-      const jwt = await surrealdb_js.signin({ ...signinOptions, user: username, pass: password });
-      if (jwt) {
-        const jwt_decoded = jwt_decode(jwt) as { ID: string; exp: number };
+      const jwt = await surrealdb.signin({ ...signinOptions, user: username, pass: password });
+      if (jwt !== '') {
+        const jwtDecoded = jwt_decode<JWTInterface>(jwt);
         const auth: RaSurrealDbAuth = {
           jwt,
-          id: jwt_decoded.ID,
-          exp: jwt_decoded.exp * 1000,
+          id: jwtDecoded.ID,
+          exp: jwtDecoded.exp * 1000,
         };
-        if (localStorageKey) {
+        if (localStorageKey !== undefined) {
           localStorage.setItem(localStorageKey, JSON.stringify(auth));
         }
         rasurreal.auth = auth;
       }
-      return surrealdb_js;
+      return surrealdb;
     },
     checkError: async (error) => {
-      console.error(error);
+      console.error(error); // eslint-disable-line no-console
     },
     checkAuth: async (params) => {
       let auth: RaSurrealDbAuth | undefined;
-      if (localStorageKey) {
-        const auth_string = localStorage.getItem(localStorageKey);
-        auth = auth_string && JSON.parse(auth_string);
+      if (localStorageKey !== undefined) {
+        const authString = localStorage.getItem(localStorageKey);
+        auth = authString !== null && JSON.parse(authString);
       } else {
         auth = rasurreal.auth;
       }
-      if (auth === undefined) throw 'no auth';
+      if (auth === undefined) throw new Error('no auth');
       const { exp } = auth;
-      if (exp && exp < Date.now()) throw 'session expired';
+      if (exp < Date.now()) throw new Error('session expired');
     },
     logout: async () => {
       rasurreal.auth = undefined;
-      localStorageKey && localStorage.removeItem(localStorageKey);
-      return surrealdb_js.invalidate();
+      localStorageKey !== undefined && localStorage.removeItem(localStorageKey);
+      await surrealdb.invalidate();
     },
     getIdentity: async (): Promise<UserIdentity> => {
       let auth: RaSurrealDbAuth | undefined;
-      if (localStorageKey) {
-        const auth_string = localStorage.getItem(localStorageKey);
-        auth = auth_string && JSON.parse(auth_string);
+      if (localStorageKey !== undefined) {
+        const authString = localStorage.getItem(localStorageKey);
+        auth = authString !== null && JSON.parse(authString);
       } else {
         auth = rasurreal.auth;
       }
-      if (auth === undefined) throw 'No identity';
+      if (auth === undefined) throw new Error('No identity');
       return { id: auth.id };
     },
-    handleCallback: () => Promise.resolve(/* ... */),
+    handleCallback: async () => {
+      await Promise.resolve(/* ... */);
+    },
     // Not implemented. No standard way to implement thems.
-    getPermissions: () => Promise.resolve(/* ... */),
+    getPermissions: async () => {
+      await Promise.resolve(/* ... */);
+    },
   };
 };
