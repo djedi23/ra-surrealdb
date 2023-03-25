@@ -1,14 +1,14 @@
 import jwt_decode from 'jwt-decode';
 import { type AuthProvider, type UserIdentity } from 'react-admin';
-import { type JWTInterface, type RaSurrealDb, type RaSurrealDbAuth } from '.';
+import { type JWTInterface, type RaSurrealDbAuth, type RaSurrealDbAuthProviderOptions } from '.';
 
 interface LoginPayload {
   username: string;
   password: string;
 }
 
-export const surrealDbAuthProvider = (rasurreal: RaSurrealDb): AuthProvider => {
-  const { surrealdb, signinOptions, localStorage: localStorageKey } = rasurreal;
+export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions): AuthProvider => {
+  const { surrealdb, signinOptions, localStorageKey } = rasurreal;
 
   return {
     login: async ({ username, password }: LoginPayload) => {

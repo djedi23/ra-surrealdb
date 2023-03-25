@@ -29,7 +29,7 @@ const App = (): JSX.Element => {
       DB: 'test',
       SC: 'account_scope',
     },
-    localStorage: 'ra_auth',
+    localStorageKey: 'ra_auth',
   });
 
   const dataProvider = surrealDbDataProvider(surreal);

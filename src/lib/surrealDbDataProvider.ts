@@ -1,4 +1,3 @@
-import jwt_decode from 'jwt-decode';
 import {
   type CreateParams,
   type CreateResult,
@@ -21,49 +20,20 @@ import {
   type UpdateParams,
   type UpdateResult,
 } from 'react-admin';
-import { type Auth, type DatabaseAuth, type Result } from 'surrealdb.js';
-import type Surreal from 'surrealdb.js';
-import { type JWTInterface, type RaSurrealDb, type RaSurrealDbAuth } from '.';
+import { type Result } from 'surrealdb.js';
+import { type RaSurrealDb } from '.';
 
 export const surrealDbDataProvider = <ResourceType extends string = string>(
   options: RaSurrealDb
 ): DataProvider<ResourceType> => {
-  const { surrealdb, signinOptions, localStorage: localStorageKey } = options;
-
-  const ensureConnexion = async (): Promise<Surreal> => {
-    if (options.auth === undefined && signinOptions.user !== undefined) {
-      const jwt = await surrealdb.signin(signinOptions as Auth);
-      const jwtDecoded = jwt_decode<JWTInterface>(jwt);
-      options.auth = {
-        jwt,
-        id: jwtDecoded.ID,
-        exp: jwtDecoded.exp * 1000,
-      };
-
-      await surrealdb.use(
-        (signinOptions as DatabaseAuth).NS ?? 'test',
-        (signinOptions as DatabaseAuth).DB ?? 'test'
-      );
-    } else if (localStorageKey !== undefined && options.auth?.jwt === undefined) {
-      const authString = localStorage.getItem(localStorageKey);
-      const auth: RaSurrealDbAuth | undefined = authString !== null && JSON.parse(authString);
-      auth?.jwt !== undefined && (await surrealdb.authenticate(auth.jwt));
-      options.auth = auth;
-
-      await surrealdb.use(
-        (signinOptions as DatabaseAuth).NS ?? 'test',
-        (signinOptions as DatabaseAuth).DB ?? 'test'
-      );
-    }
-    return surrealdb;
-  };
+  const { ensureConnexion } = options;
 
   return {
     getList: async <RecordType extends RaRecord = any>(
       resource: ResourceType,
       { pagination: { page, perPage }, sort: { field, order }, filter }: GetListParams
     ): Promise<GetListResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
 
       const filtersClauses = Object.entries(filter).map(
         ([key, value]) => ` ${key} ~ "${value as string}"`
@@ -77,7 +47,7 @@ export const surrealDbDataProvider = <ResourceType extends string = string>(
       );
       return {
         data: data.result ?? [],
-        total: count.result != null ? count.result[0]?.count : 0,
+        total: count.result !== undefined ? count.result[0]?.count : 0,
       };
     },
 
@@ -85,7 +55,7 @@ export const surrealDbDataProvider = <ResourceType extends string = string>(
       _resource: ResourceType,
       { id }: GetOneParams
     ): Promise<GetOneResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
       const [data]: RecordType[] = await db.select(id);
       return { data };
     },
@@ -94,7 +64,7 @@ export const surrealDbDataProvider = <ResourceType extends string = string>(
       resource: ResourceType,
       { ids }: GetManyParams
     ): Promise<GetManyResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
       const [data]: [Result<RecordType[]>] = await db.query(
         `SELECT * FROM type::table($resource) WHERE id INSIDE $ids;`,
         { resource, ids }
@@ -113,7 +83,7 @@ export const surrealDbDataProvider = <ResourceType extends string = string>(
         filter,
       }: GetManyReferenceParams
     ): Promise<GetManyReferenceResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
       const filtersClauses = Object.entries(filter).map(
         ([key, value]) => ` ${key} ~ "${value as string}"`
       );
@@ -137,7 +107,7 @@ SELECT count(${target}) FROM ${id} ${filters} GROUP BY ALL; `;
       _resource: ResourceType,
       { id, data }: UpdateParams
     ): Promise<UpdateResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
       const result = await db.update(id.toString(), data);
       return { data: result as RecordType };
     },
@@ -146,7 +116,7 @@ SELECT count(${target}) FROM ${id} ${filters} GROUP BY ALL; `;
       _resource: ResourceType,
       { ids, data }: UpdateManyParams
     ): Promise<UpdateManyResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
       await Promise.all(ids.map(async (id) => await db.update(id.toString(), data)));
 
       return { data: ids };
@@ -156,26 +126,27 @@ SELECT count(${target}) FROM ${id} ${filters} GROUP BY ALL; `;
       resource: ResourceType,
       { data }: CreateParams
     ): Promise<CreateResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
       // FIXME: check if id starts with resource:
-      const result = await db.create(data.id ?? resource, data);
-      return { data: result as RecordType };
+      const result: RecordType = await db.create(data.id ?? resource, data);
+      return { data: result };
     },
 
     delete: async <RecordType extends RaRecord = any>(
       _resource: ResourceType,
       { id }: DeleteParams<RecordType>
     ): Promise<DeleteResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
       await db.delete(id.toString());
-      return { data: { id } as RecordType };
+      const data: RecordType = { id } as RecordType;
+      return { data };
     },
 
     deleteMany: async <RecordType extends RaRecord = any>(
       resource: ResourceType,
       { ids }: DeleteManyParams<RecordType>
     ): Promise<DeleteManyResult<RecordType>> => {
-      const db = await ensureConnexion();
+      const db = await ensureConnexion(options);
 
       const [data]: [Result<RecordType[]>] = await db.query(
         `DELETE type::table($resource) WHERE id INSIDE $ids RETURN BEFORE;`,
