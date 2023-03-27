@@ -1,5 +1,6 @@
 import jwt_decode from 'jwt-decode';
 import { useMemo } from 'react';
+import { type Identifier, type UserIdentity } from 'react-admin';
 import Surreal, { type Auth, type DatabaseAuth } from 'surrealdb.js';
 
 export { surrealDbAuthProvider } from './surrealDbAuthProvider';
@@ -15,12 +16,14 @@ export interface RaSurrealDb extends EnsureConnexionOption {
   ensureConnexion: (options: EnsureConnexionOption) => Promise<Surreal>;
 }
 
+type IdentityFunction = (id: Identifier, db: Surreal) => Promise<UserIdentity>;
 export interface RaSurrealDbAuthProviderOptions extends RaSurrealDb {
   signinOptions: Auth;
+  getIdentity?: IdentityFunction;
 }
 
 interface RaSurrealDbOption
-  extends Pick<RaSurrealDbAuthProviderOptions, 'signinOptions' | 'localStorageKey'> {
+  extends Pick<RaSurrealDbAuthProviderOptions, 'signinOptions' | 'localStorageKey' | 'getIdentity'> {
   url: string;
 }
 
@@ -38,6 +41,7 @@ export const useRaSurrealDb = ({
   url,
   signinOptions,
   localStorageKey,
+  getIdentity,
 }: RaSurrealDbOption): RaSurrealDbAuthProviderOptions =>
   useMemo(() => {
     const surrealdb = new Surreal(url);
@@ -46,6 +50,7 @@ export const useRaSurrealDb = ({
       surrealdb,
       signinOptions,
       localStorageKey,
+      getIdentity,
       ensureConnexion: async (options: EnsureConnexionOption): Promise<Surreal> => {
         if (options.auth === undefined && signinOptions.user !== undefined) {
           const jwt = await surrealdb.signin(signinOptions);
@@ -81,4 +86,4 @@ export const useRaSurrealDb = ({
         return surrealdb;
       },
     };
-  }, [url, signinOptions, localStorage]);
+  }, [url, signinOptions, localStorage, getIdentity]);

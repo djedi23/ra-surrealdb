@@ -8,7 +8,16 @@ interface LoginPayload {
 }
 
 export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions): AuthProvider => {
-  const { surrealdb, signinOptions, localStorageKey } = rasurreal;
+  const { surrealdb, signinOptions, localStorageKey, getIdentity } = rasurreal;
+
+  const getAuth = (): RaSurrealDbAuth | undefined => {
+    if (localStorageKey !== undefined) {
+      const authString = localStorage.getItem(localStorageKey);
+      return authString !== null ? JSON.parse(authString) : undefined;
+    } else {
+      return rasurreal.auth;
+    }
+  };
 
   return {
     login: async ({ username, password }: LoginPayload) => {
@@ -31,13 +40,7 @@ export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions)
       console.error(error); // eslint-disable-line no-console
     },
     checkAuth: async (params) => {
-      let auth: RaSurrealDbAuth | undefined;
-      if (localStorageKey !== undefined) {
-        const authString = localStorage.getItem(localStorageKey);
-        auth = authString !== null && JSON.parse(authString);
-      } else {
-        auth = rasurreal.auth;
-      }
+      const auth = getAuth();
       if (auth === undefined) throw new Error('no auth');
       const { exp } = auth;
       if (exp < Date.now()) throw new Error('session expired');
@@ -48,15 +51,9 @@ export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions)
       await surrealdb.invalidate();
     },
     getIdentity: async (): Promise<UserIdentity> => {
-      let auth: RaSurrealDbAuth | undefined;
-      if (localStorageKey !== undefined) {
-        const authString = localStorage.getItem(localStorageKey);
-        auth = authString !== null && JSON.parse(authString);
-      } else {
-        auth = rasurreal.auth;
-      }
+      const auth = getAuth();
       if (auth === undefined) throw new Error('No identity');
-      return { id: auth.id };
+      return getIdentity != null ? await getIdentity(auth.id, surrealdb) : { id: auth.id };
     },
     handleCallback: async () => {
       await Promise.resolve(/* ... */);

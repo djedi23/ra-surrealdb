@@ -77,6 +77,14 @@ export default App;
 `useRaSurrealDb` creates a connexion to SurrealDB.
 The same result is sent to both the auth provider and the data provider.
 
+### Identity
+
+`useRaSurrealDb` accepts an option named `getIdentity`.
+The function signature is: `(id: Identifier, db: Surreal) => Promise<UserIdentity>;`
+
+An example is present in `src/App.tsx`.
+
+
 ## Development
 
 The library code is in `./src/lib`.

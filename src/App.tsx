@@ -19,6 +19,7 @@ import {
   TextField,
   TextInput,
 } from 'react-admin';
+import { type Result } from 'surrealdb.js';
 import { surrealDbAuthProvider, surrealDbDataProvider, useRaSurrealDb } from './lib';
 
 const App = (): JSX.Element => {
@@ -30,6 +31,14 @@ const App = (): JSX.Element => {
       SC: 'account_scope',
     },
     localStorageKey: 'ra_auth',
+    getIdentity: async (id, db) => {
+      const [{ result }]: [Result<Array<{ fullName: string }>>] = await db.query(
+        'select user.name.full as fullName from $id;',
+        { id }
+      );
+      const fullName = result?.[0].fullName;
+      return { id, fullName };
+    },
   });
 
   const dataProvider = surrealDbDataProvider(surreal);

@@ -8,7 +8,11 @@ OPTION IMPORT;
 -- SCOPES
 -- ------------------------------
 
-DEFINE SCOPE account_scope SESSION 1d SIGNUP (CREATE scopeusers SET user = $user, pass = crypto::argon2::generate($pass)) SIGNIN (SELECT * FROM scopeusers WHERE user = $user AND crypto::argon2::compare(pass, $pass));
+DEFINE SCOPE account_scope SESSION 1d SIGNUP (CREATE scopeusers SET user = type::thing('author',$user), pass = crypto::argon2::generate($pass)) SIGNIN (SELECT * FROM scopeusers WHERE user = type::thing('author',$user) AND crypto::argon2::compare(pass, $pass));
+
+
+DEFINE TABLE scopeusers SCHEMALESS PERMISSIONS FOR select WHERE session::sc() = "account_scope";
+
 
 -- ------------------------------
 -- TABLE: account
@@ -27,6 +31,7 @@ DEFINE TABLE article SCHEMALESS PERMISSIONS FOR select WHERE session::sc() = "ac
 -- ------------------------------
 
 DEFINE TABLE author SCHEMALESS PERMISSIONS  FOR select WHERE session::sc() = "account_scope", FOR create NONE, FOR update WHERE session::sc() = "account_scope", FOR delete NONE;
+
 
 -- ------------------------------
 -- TRANSACTION
@@ -54,12 +59,12 @@ UPDATE article:xnrc1f3ndn86j70z6851 CONTENT { account: account:1pafmu53haty8x8ua
 
 UPDATE author:jake CONTENT { admin: true, age: 26, id: author:jake, name: { first: "Jake", full: "Jake Baker", last: "Baker" }, signup_at: time::now() };
 UPDATE author:john CONTENT { admin: true, age: 29, id: author:john, name: { first: "John", full: "John Adams", last: "Adams" }, signup_at: time::now() };
-
+UPDATE author:user CONTENT { admin: true, age: 42, id: author:user, name: { first: "Bob", full: "Bob Turbid", last: "Turbid" }, signup_at: time::now() };
 -- ------------------------------
 -- TABLE DATA: scopeusers
 -- ------------------------------
 
-UPDATE scopeusers:rqt1qxbq7m46bj7fycjt CONTENT { id: scopeusers:rqt1qxbq7m46bj7fycjt, pass: "$argon2id$v=19$m=4096,t=3,p=1$HqOIgdEqfRD2WS/T4OFLaQ$WxgwD9FITIi+G8LNl6S5sb5RuRP/+gzCVSKTytb3FK4", user: "user" };
+UPDATE scopeusers:rqt1qxbq7m46bj7fycjt CONTENT { id: scopeusers:rqt1qxbq7m46bj7fycjt, pass: "$argon2id$v=19$m=4096,t=3,p=1$HqOIgdEqfRD2WS/T4OFLaQ$WxgwD9FITIi+G8LNl6S5sb5RuRP/+gzCVSKTytb3FK4", user: author:user };
 
 -- ------------------------------
 -- TRANSACTION
