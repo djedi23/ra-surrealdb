@@ -80,10 +80,14 @@ The same result is sent to both the auth provider and the data provider.
 ### Identity
 
 `useRaSurrealDb` accepts an option named `getIdentity`.
-The function signature is: `(id: Identifier, db: Surreal) => Promise<UserIdentity>;`
+The function signature is: `(id: Identifier, db: Surreal) => Promise<UserIdentity>`.
 
 An example is present in `src/App.tsx`.
 
+### Permissions
+
+`useRaSurrealDb` accepts an option named `getPermissions`.
+The function signature is: `(id: Identifier, db: Surreal, params: any) => Promise<any>`.
 
 ## Development
 

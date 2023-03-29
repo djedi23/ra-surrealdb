@@ -17,13 +17,18 @@ export interface RaSurrealDb extends EnsureConnexionOption {
 }
 
 type IdentityFunction = (id: Identifier, db: Surreal) => Promise<UserIdentity>;
+type PermissionFunction = (id: Identifier, db: Surreal, params: any) => Promise<any>;
 export interface RaSurrealDbAuthProviderOptions extends RaSurrealDb {
   signinOptions: Auth;
   getIdentity?: IdentityFunction;
+  getPermissions?: PermissionFunction;
 }
 
 interface RaSurrealDbOption
-  extends Pick<RaSurrealDbAuthProviderOptions, 'signinOptions' | 'localStorageKey' | 'getIdentity'> {
+  extends Pick<
+    RaSurrealDbAuthProviderOptions,
+    'signinOptions' | 'localStorageKey' | 'getIdentity' | 'getPermissions'
+  > {
   url: string;
 }
 
@@ -42,6 +47,7 @@ export const useRaSurrealDb = ({
   signinOptions,
   localStorageKey,
   getIdentity,
+  getPermissions,
 }: RaSurrealDbOption): RaSurrealDbAuthProviderOptions =>
   useMemo(() => {
     const surrealdb = new Surreal(url);
@@ -51,6 +57,7 @@ export const useRaSurrealDb = ({
       signinOptions,
       localStorageKey,
       getIdentity,
+      getPermissions,
       ensureConnexion: async (options: EnsureConnexionOption): Promise<Surreal> => {
         if (options.auth === undefined && signinOptions.user !== undefined) {
           const jwt = await surrealdb.signin(signinOptions);
@@ -86,4 +93,4 @@ export const useRaSurrealDb = ({
         return surrealdb;
       },
     };
-  }, [url, signinOptions, localStorage, getIdentity]);
+  }, [url, signinOptions, localStorage, getIdentity, getPermissions]);

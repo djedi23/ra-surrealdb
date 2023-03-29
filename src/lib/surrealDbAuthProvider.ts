@@ -8,12 +8,13 @@ interface LoginPayload {
 }
 
 export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions): AuthProvider => {
-  const { surrealdb, signinOptions, localStorageKey, getIdentity } = rasurreal;
+  const { surrealdb, signinOptions, localStorageKey, getIdentity, getPermissions, ensureConnexion } =
+    rasurreal;
 
   const getAuth = (): RaSurrealDbAuth | undefined => {
     if (localStorageKey !== undefined) {
       const authString = localStorage.getItem(localStorageKey);
-      return authString !== null ? JSON.parse(authString) : undefined;
+      return authString !== null && JSON.parse(authString);
     } else {
       return rasurreal.auth;
     }
@@ -53,14 +54,18 @@ export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions)
     getIdentity: async (): Promise<UserIdentity> => {
       const auth = getAuth();
       if (auth === undefined) throw new Error('No identity');
-      return getIdentity != null ? await getIdentity(auth.id, surrealdb) : { id: auth.id };
+      return getIdentity !== undefined ? await getIdentity(auth.id, surrealdb) : { id: auth.id };
     },
     handleCallback: async () => {
       await Promise.resolve(/* ... */);
     },
-    // Not implemented. No standard way to implement thems.
-    getPermissions: async () => {
-      await Promise.resolve(/* ... */);
+    getPermissions: async (param): Promise<any> => {
+      if (getPermissions !== undefined) {
+        const auth = getAuth();
+        return await (auth != null &&
+          getPermissions(auth?.id, await ensureConnexion(rasurreal), param));
+      }
+      return undefined;
     },
   };
 };
