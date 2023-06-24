@@ -1,3 +1,11 @@
+<a name="v0.3.0"></a>
+
+## [v0.3.0](https://github.com/djedi23/ra-surrealdb/compare/v0.2.0...v0.3.0) (2023-06-24)
+
+### Feat
+
+- custom queries for resources
+
 <a name="v0.2.0"></a>
 
 ## [v0.2.0](https://github.com/djedi23/ra-surrealdb/compare/v0.1.0...v0.2.0) (2023-03-29)
@@ -5,11 +13,13 @@
 ### Chore
 
 - add eslint and fix all the linter's errors
+
 - clean console.
 
 ### Feat
 
 - **auth:** provides a custom permissions handler.
+
 - **auth:** provides a custom identity handler.
 
 ### Refactoring
