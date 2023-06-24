@@ -2298,11 +2298,6 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
 
-isomorphic-ws@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/isomorphic-ws/-/isomorphic-ws-5.0.0.tgz#e5529148912ecb9b451b46ed44d53dae1ce04bbf"
-  integrity sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==
-
 jju@~1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/jju/-/jju-1.4.0.tgz#a3abe2718af241a2b2904f84a625970f389ae32a"
@@ -3379,13 +3374,13 @@ supports-preserve-symlinks-flag@^1.0.0:
   resolved "https://registry.yarnpkg.com/supports-preserve-symlinks-flag/-/supports-preserve-symlinks-flag-1.0.0.tgz#6eda4bd344a3c94aea376d4cc31bc77311039e09"
   integrity sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==
 
-surrealdb.js@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/surrealdb.js/-/surrealdb.js-0.5.0.tgz#126afd898c61a63b2bad79955963fe3c48a8e046"
-  integrity sha512-CpDfCwVnG3ahr2/kUf3i9RgDtLuEzQeU5Zxuhtud5Ijq9abXzkAhS/gcvtSQ9qyZiqSQcp4u7IK3yjnd1OkqKQ==
+surrealdb.js@^0.8.0:
+  version "0.8.1"
+  resolved "https://registry.yarnpkg.com/surrealdb.js/-/surrealdb.js-0.8.1.tgz#4ba78d5f00f46829d189011f851a08143eeb53d7"
+  integrity sha512-cWi0yvkL0JS93M0YVkydRsEICB2VeD/5+C/ltQ7bFjSjnEGctXySQ28/sTqgIM3Hvx7k4hbnwtjTH33TuK2+ww==
   dependencies:
-    isomorphic-ws "^5.0.0"
-    ws "^8.8.1"
+    unws "^0.2.3"
+    ws "^8.13.0"
 
 text-table@^0.2.0:
   version "0.2.0"
@@ -3508,6 +3503,11 @@ unload@2.2.0:
     "@babel/runtime" "^7.6.2"
     detect-node "^2.0.4"
 
+unws@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/unws/-/unws-0.2.3.tgz#c9152a542e3e30f13be006d68caec3f3e2e08856"
+  integrity sha512-59MJAkUoFCncPvNQjwAN9rvaLjKNMDUMEjLZ1Fnor+qI+KoTAXtJnFWYsh0fq8L3eVfrt6dDYhGfgF19t/jpHw==
+
 update-browserslist-db@^1.0.10:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/update-browserslist-db/-/update-browserslist-db-1.0.10.tgz#0f54b876545726f17d00cd9a2561e6dade943ff3"
@@ -3621,7 +3621,7 @@ wrappy@1:
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==
 
-ws@^8.8.1:
+ws@^8.13.0:
   version "8.13.0"
   resolved "https://registry.yarnpkg.com/ws/-/ws-8.13.0.tgz#9a9fb92f93cf41512a0735c8f4dd09b8a1211cd0"
   integrity sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==

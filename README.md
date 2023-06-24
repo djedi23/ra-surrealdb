@@ -77,10 +77,70 @@ export default App;
 `useRaSurrealDb` creates a connexion to SurrealDB.
 The same result is sent to both the auth provider and the data provider.
 
+### DataProvider with custom queries
+
+All queries can be customized when you call `useRasurrealDb`.
+The `queries` option have the following structure:
+
+```typescript
+{resource_name: {
+	getList:(/*...*/)=>{},
+	getOne:(/*...*/)=>{},
+	getMany:(/*...*/)=>{},
+	update:(/*...*/)=>{},
+	create:(/*...*/)=>{},
+	delete:(/*...*/)=>{},
+}}
+```
+
+#### Example
+
+In this example, we manage relations in custom queries.
+
+```typescript
+const surreal = useRaSurrealDb({
+  /* ... */
+  queries: {
+    person: {
+      getOne: async (resource: string, { id }: GetOneParams, db: Surreal) => {
+        const results = await db.query<Result<Person[]>[]>(
+          `select *, ->parent->person.* as parents from ${id};`
+        );
+        const result = results[0].result?.[0];
+        if (result) return result;
+        else throw new Error('Person not found');
+      },
+      create: async (resource: string, { data }: CreateParams<Person>, db: Surreal) => {
+        const { parents, ...person } = data;
+        const relations = (
+          parents
+            ? parents.map(
+                ({ person, role }) =>
+                  `RELATE $p->parent->${person} SET time.written = time::now(), role = "${role}";`
+              )
+            : []
+        ).join('\n');
+        const q = `BEGIN;
+LET $p = (CREATE ${resource} CONTENT $person);
+SELECT * FROM $p;
+${relations}
+COMMIT;
+`;
+        const results = await db.query<Result<Person[]>[]>(q, { person });
+        const result = results?.[1].result?.[0];
+        if (result === undefined) throw new Error('');
+        return result;
+      },
+      /* ... */
+    },
+  },
+});
+```
+
 ### Identity
 
 `useRaSurrealDb` accepts an option named `getIdentity`.
-The function signature is: `(id: Identifier, db: Surreal) => Promise<UserIdentity>`.
+The function signature is: `(id: Identifier, db: Surreal) => Promise<UserIdentity>;`
 
 An example is present in `src/App.tsx`.
 

@@ -18,8 +18,10 @@ import {
   SimpleShowLayout,
   TextField,
   TextInput,
+  type Identifier,
 } from 'react-admin';
-import { type Result } from 'surrealdb.js';
+import type Surreal from 'surrealdb.js';
+import { type QueryResult } from 'surrealdb.js/script/types';
 import { surrealDbAuthProvider, surrealDbDataProvider, useRaSurrealDb } from './lib';
 
 const App = (): JSX.Element => {
@@ -32,13 +34,14 @@ const App = (): JSX.Element => {
     },
     localStorageKey: 'ra_auth',
     getIdentity: async (id, db) => {
-      const [{ result }]: [Result<Array<{ fullName: string }>>] = await db.query(
+      const [{ result }]: Array<QueryResult<Array<{ fullName: string }>>> = await db.query(
         'select user.name.full as fullName from $id;',
         { id }
       );
       const fullName = result?.[0].fullName;
       return { id, fullName };
     },
+    getPermissions: async (id: Identifier, db: Surreal, params: any) => {},
   });
 
   const dataProvider = surrealDbDataProvider(surreal);

@@ -14,7 +14,7 @@ export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions)
   const getAuth = (): RaSurrealDbAuth | undefined => {
     if (localStorageKey !== undefined) {
       const authString = localStorage.getItem(localStorageKey);
-      return authString !== null && JSON.parse(authString);
+      return authString !== null ? JSON.parse(authString) : undefined;
     } else {
       return rasurreal.auth;
     }
@@ -23,7 +23,7 @@ export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions)
   return {
     login: async ({ username, password }: LoginPayload) => {
       const jwt = await surrealdb.signin({ ...signinOptions, user: username, pass: password });
-      if (jwt !== '') {
+      if (jwt !== '' && jwt !== undefined) {
         const jwtDecoded = jwt_decode<JWTInterface>(jwt);
         const auth: RaSurrealDbAuth = {
           jwt,
@@ -31,7 +31,11 @@ export const surrealDbAuthProvider = (rasurreal: RaSurrealDbAuthProviderOptions)
           exp: jwtDecoded.exp * 1000,
         };
         if (localStorageKey !== undefined) {
-          localStorage.setItem(localStorageKey, JSON.stringify(auth));
+          try {
+            localStorage.setItem(localStorageKey, JSON.stringify(auth));
+          } catch (e) {
+            console.error(e); // eslint-disable-line no-console
+          }
         }
         rasurreal.auth = auth;
       }
