@@ -46,8 +46,8 @@ export const surrealDbDataProvider = <
           return result;
         } else {
           const {
-            pagination: { page, perPage },
-            sort: { field, order },
+            pagination: { page, perPage } = { page: 1, perPage: 10 },
+            sort: { field, order } = { field: '', order: 'ASC' },
             filter,
           } = params;
           const filtersClauses = Object.entries(filter).map(
@@ -179,8 +179,8 @@ SELECT count(${target}) FROM ${id} ${filters} GROUP ALL;`;
           return result;
         } else {
           const { id, data } = params;
-          const result = await db.update(id.toString(), data);
-          return { data: result as unknown as RecordType };
+          const [result] = (await db.update(id.toString(), data)) as RecordType[];
+          return { data: result };
         }
       } catch (e) {
         console.error('Error in getUpdate: ', e); // eslint-disable-line no-console
@@ -226,7 +226,7 @@ SELECT count(${target}) FROM ${id} ${filters} GROUP ALL;`;
         } else {
           const { data } = params;
           // FIXME: check if id starts with resource:
-          const [result]: RecordType[] = await db.create(data.id ?? resource, data);
+          const [result]: RecordType[] = (await db.create(data.id ?? resource, data)) as RecordType[];
           return { data: result };
         }
       } catch (e) {
